@@ -10,7 +10,7 @@ namespace WebApi.Entidades
         public string Nome { get; set; }
         public string Sobrenome { get; set; }
         public string NomeCompleto { get; set; }
-        public DateTime? DataNascimento { get; set; } = null;
+        public DateTime DataNascimento { get; set; }
         public string Idade { get; set; }
     }
 }
