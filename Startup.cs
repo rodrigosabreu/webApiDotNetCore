@@ -40,8 +40,10 @@ namespace WebApi
             /*services.AddFluentValidationAutoValidation();
             services.AddScoped<IValidator<PessoaDto>, PessoaDtoValidator>();*/
 
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddAutoMapper(typeof(Startup));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
