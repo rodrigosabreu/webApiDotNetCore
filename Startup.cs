@@ -30,8 +30,12 @@ namespace WebApi
                 //options.JsonSerializerOptions.IgnoreNullValues = true;
             });
 
-            services.AddControllers()
-                .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<PessoaDtoValidator>());
+
+            /*services.AddControllers()
+                .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<PessoaDtoValidator>());*/
+
+            services.AddFluentValidationAutoValidation();
+            services.AddScoped<IValidator<PessoaDto>, PessoaDtoValidator>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             
