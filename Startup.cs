@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Refit;
 using System;
 using WebApi.Dtos;
-using WebApi.Entidades;
+using WebApi.Refit;
 using WebApi.Validation;
 
 namespace WebApi
@@ -30,15 +31,19 @@ namespace WebApi
                 //options.JsonSerializerOptions.IgnoreNullValues = true;
             });
 
-            services.AddControllers()
+            services
+                .AddRefitClient<ICepApiService>()
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://viacep.com.br/"));
+
+            /*services.AddControllers()
                 .AddFluentValidation(x => x
-                    .RegisterValidatorsFromAssemblyContaining<Startup>());
+                    .RegisterValidatorsFromAssemblyContaining<Startup>());*/
 
             /*services.AddControllers()
                 .AddFluentValidation(config => config.RegisterValidatorsFromAssemblyContaining<PessoaDtoValidator>());*/
 
-            /*services.AddFluentValidationAutoValidation();
-            services.AddScoped<IValidator<PessoaDto>, PessoaDtoValidator>();*/
+            services.AddFluentValidationAutoValidation();
+            services.AddScoped<IValidator<PessoaDto>, PessoaDtoValidator>();
 
             //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
