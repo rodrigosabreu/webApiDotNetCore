@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.IdentityModel.Tokens.Jwt;
 using WebApi.Dtos;
 using WebApi.Entidades;
 using WebApi.Helpers;
@@ -18,6 +19,8 @@ namespace WebApi.Profiles
                     dest => dest.Idade,
                     opt => opt.MapFrom(src => src.DataNascimento.ObterIdadeAtual())
                 );
+
+            CreateMap<JwtSecurityToken, Jwt>();
         }        
     }
 }

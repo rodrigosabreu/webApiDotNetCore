@@ -63,6 +63,10 @@ namespace WebApi
                 .AddRefitClient<ICepApiService>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://viacep.com.br/"));
 
+            services                
+                .AddRefitClient<IConselhoApiService>()
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://api.adviceslip.com/"));
+
             /*services.AddControllers()
                 .AddFluentValidation(x => x
                     .RegisterValidatorsFromAssemblyContaining<Startup>());*/
