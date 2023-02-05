@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/pessoas",
+      "launchUrl": "api/cep?cep=03106010",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

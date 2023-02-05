@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Refit;
 using System;
 using System.Text;
+using WebApi.AWS;
 using WebApi.Dtos;
 using WebApi.Extensions;
 using WebApi.Helpers;
@@ -66,6 +67,8 @@ namespace WebApi
             services                
                 .AddRefitClient<IConselhoApiService>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://api.adviceslip.com/"));
+
+            services.AddScoped<ITranslateService, TranslateService>();
 
             /*services.AddControllers()
                 .AddFluentValidation(x => x

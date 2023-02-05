@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Refit;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
+using WebApi.AWS;
 using WebApi.Dtos;
 using WebApi.Entidades;
 using WebApi.Refit;
@@ -24,12 +21,18 @@ namespace WebApi.Controllers
         private readonly IMapper _mapper;
         private readonly ICepApiService _paymentService;
         private readonly IConselhoApiService _conselhoService;
+        private readonly ITranslateService _translateService;
 
-        public PessoasController(IMapper mapper, ICepApiService paymentService, IConselhoApiService conselhoService)
+        public PessoasController(
+            IMapper mapper, 
+            ICepApiService paymentService, 
+            IConselhoApiService conselhoService, 
+            ITranslateService translateService)
         {
             _mapper = mapper;
             _paymentService = paymentService;
             _conselhoService = conselhoService;
+            _translateService = translateService;
         }
 
         [HttpGet]
@@ -42,36 +45,60 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
+        [Route("cep1")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCep1([FromQuery] string cep)
+        {
+            var endereco = new CepResponse();
+            var enderecoTask = _paymentService.GetAddressAsync(cep);
+            var conselhoTask = _conselhoService.GetConselhoAsync();
+
+            await Task.WhenAll(enderecoTask, conselhoTask)
+                .ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                    {                        
+                        Console.WriteLine("Erro ao chamar a task: " + task.Exception.InnerException);
+                    }
+                });
+
+            if (enderecoTask.IsCompletedSuccessfully)
+            {
+                endereco = enderecoTask.Result;
+
+                string conselhoTraduzido = "";
+                if (conselhoTask.IsCompletedSuccessfully)
+                {
+                    var conselho = conselhoTask.Result;
+                    conselhoTraduzido = await _translateService.TranslateAsyncRefactor(conselho.slip.advice, "pt-br");
+                }
+                endereco.conselho = conselhoTraduzido;
+            }
+
+            return Ok(endereco);
+        }
+
+        [HttpGet]
         [Route("cep")]
         [AllowAnonymous]
         public async Task<IActionResult> GetCep([FromQuery] string cep)
-        {
-            var endereco = _paymentService.GetAddressAsync(cep);
-            var conselho = _conselhoService.GetConselhoAsync();
+        {           
+            var enderecoTask = _paymentService.GetAddressAsync(cep);
+            var conselhoTask = _conselhoService.GetConselhoAsync();
 
-            await Task.WhenAll(endereco, conselho);
+            await Task.WhenAll(enderecoTask, conselhoTask)
+                .ContinueWith(task =>{
+                    if (task.IsFaulted)Console.WriteLine("Erro ao chamar a task: " + task.Exception.InnerException);
+                });
 
-            endereco.Result.afonso_meu_senior = conselho.Result.slip.advice;                      
+            var endereco = (enderecoTask.IsCompletedSuccessfully) ? enderecoTask.Result : new CepResponse();
+            var conselho = (conselhoTask.IsCompletedSuccessfully) ? conselhoTask.Result : new ConselhoResponse();               
+                               
+            string conselhoTraduzido = await _translateService.TranslateAsyncRefactor(conselho.slip.advice, "pt-br");
 
-            return Ok(endereco.Result);
+            endereco.conselho = conselhoTraduzido;
 
-            /*var ceps = new List<string> { "08676250", "08615050", "08673115" };
-            var result2 = await Task.WhenAll(ceps.Select(cep => _paymentService.GetAddressAsync(cep)));                       
-
-            // Crie uma lista de tarefas para paralelizar as chamadas
-            var tasks = new List<Task<CepResponse>>();
-
-            for (int i = 0; i < 10; i++)
-            {
-                tasks.Add(_paymentService.GetAddressAsync(cep));
-            }
-
-            var result4 = await Task.WhenAll(_conselhoService.GetConselhoAsync());
-
-            // Espere a finalização de todas as tarefas
-            var result3 = await Task.WhenAll(tasks);   */
-
-
+            return Ok(endereco);            
         }
 
         [HttpPost]

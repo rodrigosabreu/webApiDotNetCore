@@ -11,7 +11,6 @@
         public string unidade { get; set; }        
         public string ibge { get; set; }        
         public string gia { get; set; }
-
-        public string afonso_meu_senior { get; set; }
+        public string conselho { get; set; }
     }
 }
